@@ -22,3 +22,6 @@ def sensor_decorator():
             print(f"Shibe URL returned the status code {r.status_code}")
 
         return PokeReturnValue(is_done=condition_met, xcom_value=operator_return_value)
+
+
+sensor_decorator()
