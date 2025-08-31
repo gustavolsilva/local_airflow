@@ -1,8 +1,8 @@
-from airflow.sdk import dag, task
+from airflow.decorators import dag, task
 from datetime import datetime
 
 @dag(schedule='@daily',
-     start_date=datetime(2025, 1, 1)
+     start_date=datetime(2025, 1, 1),
      description='DAG to check data', tags=['data_engineering']
      )
 def check_dag():

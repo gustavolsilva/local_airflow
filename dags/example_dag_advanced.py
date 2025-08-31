@@ -12,13 +12,24 @@ from airflow.models.baseoperator import chain
 
 from airflow.operators.bash import BashOperator
 from airflow.operators.empty import EmptyOperator
+from airflow.operators.python import BranchPythonOperator
 from airflow.operators.weekday import BranchDayOfWeekOperator
 
 # Used to label node edges in the Airflow UI
 from airflow.utils.edgemodifier import Label
 
 # Used to determine the day of the week
-from airflow.utils.weekday import WeekDay
+from enum import Enum, auto
+
+# Define WeekDay enum since it's not available in this Airflow version
+class WeekDay(Enum):
+    MONDAY = auto()
+    TUESDAY = auto()
+    WEDNESDAY = auto()
+    THURSDAY = auto()
+    FRIDAY = auto()
+    SATURDAY = auto()
+    SUNDAY = auto()
 
 
 """
@@ -129,7 +140,6 @@ def inviting_friends(subject: str, body: str) -> None:
             minutes=3
         ),  # A task that fails will wait 3 minutes to retry.
     },
-    default_view="graph",  # This defines the default view for this DAG in the Airflow UI
     # When catchup=False, your DAG will only run for the latest schedule interval. In this case, this means
     # that tasks will not be run between January 1st, 2023 and 1 day ago. When turned on, this DAG's first run
     # will be for today, per the @daily schedule
@@ -183,7 +193,6 @@ def example_dag_advanced():
 
                 # Declaring task dependencies within the "TaskGroup" via the classic bitshift operator.
                 which_weekday_activity_day >> day_of_week >> do_activity
-
     # Begin weekend tasks
     # Tasks within this TaskGroup will be grouped together in the UI
     @task_group
@@ -202,7 +211,6 @@ def example_dag_advanced():
         )
 
         going_to_the_beach = _going_to_the_beach()  # Calling the TaskFlow task
-
         # Because the "_going_to_the_beach()" function has "multiple_outputs" enabled, each dict key is
         # accessible as their own "XCom" key.
         _inviting_friends = inviting_friends(
@@ -217,10 +225,10 @@ def example_dag_advanced():
             [going_to_the_beach, sleeping_in],
         )
 
+    # Task dependency created by XComArgs - not needed anymore since we set it above
     # Call the @task_group TaskFlow functions to instantiate them in the DAG
     _weekday_activities = weekday_activities()
     _weekend_activities = weekend_activities()
-
     # High-level dependencies between tasks
     chain(
         begin,
@@ -229,32 +237,10 @@ def example_dag_advanced():
         [_weekday_activities, _weekend_activities],
         end,
     )
-
-    # Task dependency created by XComArgs:
     # going_to_the_beach >> inviting_friends
 
 
-example_dag_advanced()from pendulum import datetime, duration
-
-# Airflow Operators are templates for tasks and encompass the logic that your DAG will actually execute.
-# To use an operator in your DAG, you first have to import it.
-# To learn more about operators, see: https://registry.astronomer.io/.
-
-# DAG and task decorators for interfacing with the TaskFlow API
-from airflow.decorators import dag, task, task_group
-
-# A function that sets sequential dependencies between tasks including lists of tasks
-from airflow.models.baseoperator import chain
-
-from airflow.operators.bash import BashOperator
-from airflow.operators.empty import EmptyOperator
-from airflow.operators.weekday import BranchDayOfWeekOperator
-
-# Used to label node edges in the Airflow UI
-from airflow.utils.edgemodifier import Label
-
-# Used to determine the day of the week
-from airflow.utils.weekday import WeekDay
+example_dag_advanced()
 
 
 """

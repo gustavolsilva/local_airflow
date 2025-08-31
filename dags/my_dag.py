@@ -39,7 +39,7 @@ def my_dag():
     # task_a() << task_b() << task_c() << task_d()
 
     # when need paralels execution, enough tasks allocate in list
-    task_a() >> [task_b(), task_d()] >> [task_c(), task_e()]
+    # task_a() >> [task_b(), task_d()] >> [task_c(), task_e()]
 
     # when need the task_c depends on the task_b in paralels the task_e depends on the task_d and started on task_a
     # task_a() >> [task_b(), task_c()] # expected
@@ -51,8 +51,8 @@ def my_dag():
 
     # a >> [task_b(), task_c()] # wrong, because its runing indempendecy tasks
     # a >> [task_d(), task_e()] # wrong, because its runing indempendecy tasks
-    a >> task_b() >> task_c()
-    a >> task_d() >> task_e()
+    # a >> task_b() >> task_c()
+    # a >> task_d() >> task_e()
 
     # using chain, get a single line
     chain(task_a(), [task_b(), task_d()],[task_c(), task_e()])

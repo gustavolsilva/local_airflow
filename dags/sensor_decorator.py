@@ -2,10 +2,10 @@ from airflow.decorators import dag, task
 from datetime import datetime
 import requests
 
-from aiflow.sensors.base import PokeReturnValue
+from airflow.sensors.base import PokeReturnValue
 
 
-@dag(start_date=datetime(2022, 12, 1), schedule_interval='@daily', catchup=False)
+@dag(start_date=datetime(2022, 12, 1), schedule='@daily', catchup=False)
 def sensor_decorator():
 
     @task.sensor(poke_interval=30, timeout=3600, mode='poke')
